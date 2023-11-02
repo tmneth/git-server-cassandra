@@ -36,7 +36,6 @@ CREATE TABLE IF NOT EXISTS repositories_by_name
     PRIMARY KEY (user_id, name)
 );
 
-
 CREATE TABLE IF NOT EXISTS repositories_by_user
 (
     user_id UUID,
