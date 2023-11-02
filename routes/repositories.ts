@@ -12,8 +12,8 @@ import {
 
 router.post("/", addRepository);
 router.get("/", getRepositories);
-router.get("/:id", getRepository);
+router.get("/:repoId", getRepository);
 router.get("/user/:userId", getUserRepositories);
-router.delete("/:id", deleteRepository);
+router.delete("/:repoId", deleteRepository);
 
 export default router;

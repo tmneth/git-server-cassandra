@@ -73,7 +73,7 @@ export const getRepository = async (
   res: Response
 ): Promise<void> => {
   try {
-    const repository_id = req.params.id;
+    const repository_id = req.params.repoId;
 
     if (!repository_id) {
       res.status(400).json({ message: "Repository ID is missing." });
@@ -147,7 +147,7 @@ export const deleteRepository = async (
   res: Response
 ): Promise<void> => {
   try {
-    const repository_id = req.params.id;
+    const repository_id = req.params.repoId;
 
     if (!repository_id) {
       res.status(400).json({ message: "Repository ID is missing." });
