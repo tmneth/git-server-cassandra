@@ -57,6 +57,28 @@ export const addRepository = async (
   return result;
 };
 
+export const addRepositoryForUser = async (
+  user_id: string,
+  repository_id: string,
+  name: string,
+  created_at: string
+) => {
+  const query = `
+    INSERT INTO repositories_by_user (
+      user_id,
+      repository_id,
+      name,
+      created_at
+    ) VALUES (?, ?, ?, ?)`;
+
+  const params = [user_id, repository_id, name, created_at];
+
+  const { rows: result } = await client.execute(query, params, {
+    prepare: true,
+  });
+  return result;
+};
+
 export const getRepository = async (repository_id: string) => {
   const query = "SELECT * FROM repositories WHERE repository_id = ?";
 
@@ -70,6 +92,16 @@ export const getRepositories = async () => {
   const query = "SELECT * FROM repositories";
 
   const { rows: repositories } = await client.execute(query);
+  return repositories;
+};
+
+export const getRepositoriesByUser = async (user_id: string) => {
+  const query = "SELECT * FROM repositories_by_user WHERE user_id = ?";
+
+  const { rows: repositories } = await client.execute(query, [user_id], {
+    prepare: true,
+  });
+
   return repositories;
 };
 

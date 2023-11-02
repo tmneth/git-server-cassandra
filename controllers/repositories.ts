@@ -9,7 +9,7 @@ export const addRepository = async (
 ): Promise<void> => {
   try {
     const { user_id, name, description, tags, is_private } = req.body;
-    console.log(req.body);
+
     if (!user_id || !name) {
       res.status(400).json({ message: "Required fields are missing." });
       return;
@@ -52,6 +52,13 @@ export const addRepository = async (
       created_at
     );
 
+    await repositoryQueries.addRepositoryForUser(
+      user_id,
+      repository_id,
+      name,
+      created_at
+    );
+
     res
       .status(201)
       .json({ message: "Repository added successfully.", repository_id });
@@ -86,6 +93,37 @@ export const getRepository = async (
     }
   } catch (error) {
     console.error("Error fetching repository:", error);
+    res.status(500).json({ message: "Internal Server Error." });
+  }
+};
+
+export const getUserRepositories = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const user_id = req.params.userId;
+
+    if (!user_id) {
+      res.status(400).json({ message: "User ID is missing." });
+      return;
+    }
+
+    const user = await userQueries.getUser(user_id);
+    if (!user.length) {
+      res.status(404).json({ message: "User not found." });
+      return;
+    }
+
+    const repositories = await repositoryQueries.getRepositoriesByUser(user_id);
+
+    if (repositories) {
+      res.status(200).json(repositories);
+    } else {
+      res.status(404).json({ message: "Repositories not found." });
+    }
+  } catch (error) {
+    console.error("Error fetching repositories:", error);
     res.status(500).json({ message: "Internal Server Error." });
   }
 };
