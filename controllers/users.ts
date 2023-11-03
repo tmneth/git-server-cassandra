@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
 import * as userQueries from "../db/user.queries";
+import * as starQueries from "../db/star.queries";
 
 export const addUser = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -39,7 +40,7 @@ export const addUser = async (req: Request, res: Response): Promise<void> => {
 
 export const getUser = async (req: Request, res: Response): Promise<void> => {
   try {
-    const user_id = req.params.id;
+    const user_id = req.params.user_id;
 
     if (!user_id) {
       res.status(400).json({ message: "User ID is missing." });
@@ -79,7 +80,7 @@ export const deleteUser = async (
   res: Response
 ): Promise<void> => {
   try {
-    const user_id = req.params.id;
+    const user_id = req.params.user_id;
 
     if (!user_id) {
       res.status(400).json({ message: "User ID is missing." });
@@ -96,6 +97,22 @@ export const deleteUser = async (
     res.status(200).json({ message: "User deleted successfully." });
   } catch (error) {
     console.error("Error deleting user:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+export const getStarsByUser = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const user_id = req.params.user_id;
+
+    const stars = await starQueries.getStarsByUser(user_id);
+
+    res.status(200).json(stars);
+  } catch (error) {
+    console.error("Error fetching starred repositories:", error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };

@@ -23,57 +23,42 @@ export const addRepository = async (
   user_id: string,
   name: string,
   description: string,
-  stars: number,
-  tags: string[],
   is_private: boolean,
   created_at: string
 ) => {
-  const query = `
-    INSERT INTO repositories (
-      repository_id, 
-      user_id, 
-      name, 
-      description, 
-      stars, 
-      tags, 
-      is_private, 
-      created_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
-
-  const params = [
-    repository_id,
-    user_id,
-    name,
-    description,
-    stars,
-    tags,
-    is_private,
-    created_at,
+  const queries = [
+    {
+      query: `
+          INSERT INTO repositories (
+            repository_id, 
+            user_id, 
+            name, 
+            description, 
+            is_private, 
+            created_at
+          ) VALUES (?, ?, ?, ?, ?, ?)`,
+      params: [
+        repository_id,
+        user_id,
+        name,
+        description,
+        is_private,
+        created_at,
+      ],
+    },
+    {
+      query: `
+          INSERT INTO repositories_by_user (
+            user_id, 
+            created_at, 
+            repository_id, 
+            name
+          ) VALUES (?, ?, ?, ?)`,
+      params: [user_id, created_at, repository_id, name],
+    },
   ];
 
-  const { rows: result } = await client.execute(query, params, {
-    prepare: true,
-  });
-  return result;
-};
-
-export const addRepositoryForUser = async (
-  user_id: string,
-  repository_id: string,
-  name: string,
-  created_at: string
-) => {
-  const query = `
-    INSERT INTO repositories_by_user (
-      user_id,
-      repository_id,
-      name,
-      created_at
-    ) VALUES (?, ?, ?, ?)`;
-
-  const params = [user_id, repository_id, name, created_at];
-
-  const { rows: result } = await client.execute(query, params, {
+  const { rows: result } = await client.batch(queries, {
     prepare: true,
   });
   return result;
@@ -105,11 +90,23 @@ export const getRepositoriesByUser = async (user_id: string) => {
   return repositories;
 };
 
-export const deleteRepository = async (repository_id: string) => {
-  const query = "DELETE FROM repositories WHERE repository_id = ?";
+export const deleteRepository = async (
+  repository_id: string,
+  user_id: string
+) => {
+  const queries = [
+    {
+      query: "DELETE FROM repositories WHERE repository_id = ?",
+      params: [repository_id],
+    },
+    {
+      query:
+        "DELETE FROM repositories_by_user WHERE user_id = ? AND repository_id = ?",
+      params: [user_id, repository_id],
+    },
+  ];
 
-  const { rows: repositories } = await client.execute(query, [repository_id], {
+  await client.batch(queries, {
     prepare: true,
   });
-  return repositories;
 };
