@@ -35,7 +35,7 @@ export const getUser = async (user_id: string) => {
   const { rows: user } = await client.execute(query, [user_id], {
     prepare: true,
   });
-  return user;
+  return user[0];
 };
 
 export const getUsers = async () => {
@@ -45,11 +45,19 @@ export const getUsers = async () => {
   return users;
 };
 
-export const deleteUser = async (user_id: string) => {
-  const query = "DELETE FROM users WHERE user_id = ?";
+export const deleteUser = async (user_id: string, email: string) => {
+  const queries = [
+    {
+      query: "DELETE FROM users WHERE user_id = ?",
+      params: [user_id],
+    },
+    {
+      query: "DELETE FROM users_by_email WHERE email = ?",
+      params: [email],
+    },
+  ];
 
-  const { rows: users } = await client.execute(query, [user_id], {
+  await client.batch(queries, {
     prepare: true,
   });
-  return users;
 };
