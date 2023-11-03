@@ -43,8 +43,8 @@ CREATE TABLE IF NOT EXISTS repositories_by_user
     created_at TIMESTAMP,
     repository_id UUID,
     name TEXT,
-    PRIMARY KEY (user_id, created_at, repository_id)
-) WITH CLUSTERING ORDER BY (created_at ASC, repository_id DESC);
+    PRIMARY KEY (user_id, repository_id)
+) WITH CLUSTERING ORDER BY (repository_id DESC);
 
 CREATE TABLE IF NOT EXISTS stars_by_repository
 (
