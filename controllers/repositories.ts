@@ -17,7 +17,7 @@ export const addRepository = async (
     }
 
     const user = await userQueries.getUser(user_id);
-    if (!user.length) {
+    if (!user) {
       res.status(404).json({ message: "User not found." });
       return;
     }
@@ -72,7 +72,7 @@ export const getRepository = async (
     }
 
     const repository = await repositoryQueries.getRepository(repository_id);
-    if (!repository.length) {
+    if (!repository) {
       res.status(404).json({ message: "Repository not found." });
       return;
     }
@@ -101,7 +101,7 @@ export const getUserRepositories = async (
     }
 
     const user = await userQueries.getUser(user_id);
-    if (!user.length) {
+    if (!user) {
       res.status(404).json({ message: "User not found." });
       return;
     }
@@ -147,12 +147,15 @@ export const deleteRepository = async (
     }
 
     const repository = await repositoryQueries.getRepository(repository_id);
-    if (!repository.length) {
+
+    if (!repository) {
       res.status(404).json({ message: "Repository not found." });
       return;
     }
 
-    const owner_id = repository[0].user_id.toString();
+    const owner_id = repository.user_id.toString();
+    const name = repository.name;
+
     if (user_id !== owner_id) {
       res
         .status(403)
@@ -160,7 +163,7 @@ export const deleteRepository = async (
       return;
     }
 
-    await repositoryQueries.deleteRepository(repository_id, user_id);
+    await repositoryQueries.deleteRepository(repository_id, user_id, name);
     res.status(200).json({ message: "Repository deleted successfully." });
   } catch (error) {
     console.error("Error deleting repository", error);
@@ -177,12 +180,12 @@ export const starRepository = async (
 
   try {
     const repository = await repositoryQueries.getRepository(repository_id);
-    if (!repository.length) {
+    if (!repository) {
       res.status(404).json({ message: "Repository not found." });
       return;
     }
 
-    if (repository[0].is_private) {
+    if (repository.is_private) {
       res
         .status(403)
         .json({ message: "Private repository cannot be starred." });
@@ -190,8 +193,8 @@ export const starRepository = async (
     }
 
     const starred_on = new Date().toISOString();
-    const owner_id = repository[0].user_id.toString();
-    const name = repository[0].name;
+    const owner_id = repository.user_id.toString();
+    const name = repository.name;
 
     await starQueries.addStar(
       repository_id,

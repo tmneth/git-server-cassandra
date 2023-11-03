@@ -14,7 +14,7 @@ import {
 } from "../controllers/repositories";
 
 router.post("/", addRepository);
-router.delete("/", deleteRepository);
+router.delete("/:repository_id", deleteRepository);
 router.get("/", getRepositories);
 router.get("/:repository_id", getRepository);
 router.get("/user/:user_id", getUserRepositories);

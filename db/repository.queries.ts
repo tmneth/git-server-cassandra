@@ -58,10 +58,9 @@ export const addRepository = async (
     },
   ];
 
-  const { rows: result } = await client.batch(queries, {
+  await client.batch(queries, {
     prepare: true,
   });
-  return result;
 };
 
 export const getRepository = async (repository_id: string) => {
@@ -70,7 +69,7 @@ export const getRepository = async (repository_id: string) => {
   const { rows: repository } = await client.execute(query, [repository_id], {
     prepare: true,
   });
-  return repository;
+  return repository[0];
 };
 
 export const getRepositories = async () => {
@@ -92,7 +91,8 @@ export const getRepositoriesByUser = async (user_id: string) => {
 
 export const deleteRepository = async (
   repository_id: string,
-  user_id: string
+  user_id: string,
+  name: string
 ) => {
   const queries = [
     {
@@ -103,6 +103,10 @@ export const deleteRepository = async (
       query:
         "DELETE FROM repositories_by_user WHERE user_id = ? AND repository_id = ?",
       params: [user_id, repository_id],
+    },
+    {
+      query: "DELETE FROM repositories_by_name WHERE user_id = ? AND name = ?",
+      params: [user_id, name],
     },
   ];
 
